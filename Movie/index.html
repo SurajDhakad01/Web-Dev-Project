@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bollywood Movies 🎬</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #ff512f, #dd2476);
+      padding: 15px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background: #111;
+      padding: 10px;
+    }
+    nav a {
+      color: #ff4b2b;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    nav a:hover {
+      color: #ff9068;
+    }
+
+    /* Search */
+    .search-box {
+      margin: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      animation: fadeIn 1s ease-in-out;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      background: #ff4b2b;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+    button:hover {
+      transform: scale(1.1);
+      background: #ff9068;
+    }
+
+    h2 {
+      margin: 20px;
+      text-align: center;
+      color: #ff4b2b;
+      text-shadow: 0 0 10px rgba(255,75,43,0.6);
+    }
+
+    /* Movie Grid */
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .movie-card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.6);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      cursor: pointer;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    .movie-card:hover {
+      transform: scale(1.08);
+      box-shadow: 0px 6px 20px rgba(255,75,43,0.5);
+    }
+
+    .movie-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .movie-info h3 {
+      margin: 10px 0 5px;
+      color: #ff9068;
+    }
+    .movie-info p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    /* Favorite button */
+    .fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 22px;
+      cursor: pointer;
+      color: white;
+      text-shadow: 0 0 5px black;
+      transition: transform 0.2s;
+    }
+    .fav-btn:hover {
+      transform: scale(1.3);
+    }
+    .fav-btn.active {
+      color: #ff4b2b;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    @keyframes fadeInUp {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <header>🎬 Bollywood Movies</header>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#popular">Popular</a>
+    <a href="#favorites">Favorites</a>
+  </nav>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input type="text" id="movieInput" placeholder="Enter movie name...">
+    <button onclick="getMovie()">Search</button>
+  </div>
+
+  <!-- Sections -->
+  <h2 id="popular">🔥 Popular Bollywood Movies</h2>
+  <div id="movieContainer" class="movies-grid"></div>
+
+  <h2 id="favorites">❤️ Your Favorites</h2>
+  <div id="favoritesContainer" class="movies-grid"></div>
+
+  <script>
+    const apiKey = "ea6d99ca";
+
+    // Default Bollywood movies
+    const defaultMovies = [
+      "3 Idiots",
+      "Sholay",
+      "Dangal",
+      "PK",
+      "Kabir Singh",
+      "Lagaan",
+      "Bahubali",
+      "Chakde India"
+    ];
+
+    // Fetch movie by title
+    async function fetchMovie(title) {
+      const url = `https://www.omdbapi.com/?t=${title}&apikey=${apiKey}`;
+      const response = await fetch(url);
+      return await response.json();
+    }
+
+    // Display multiple movies
+    async function displayMovies(movieList, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      for (let title of movieList) {
+        const data = await fetchMovie(title);
+        if (data.Response === "True") {
+          const isFav = checkFavorite(data.Title);
+          container.innerHTML += `
+  <div class="movie-card" onclick="openMovie('${data.Title}', '${data.imdbID}')">
+    <span class="fav-btn ${isFav ? "active" : ""}" onclick="event.stopPropagation(); toggleFavorite('${data.Title}')">♥</span>
+    <img src="${data.Poster !== "N/A" ? data.Poster : 'https://via.placeholder.com/200'}" alt="${data.Title}">
+    <div class="movie-info">
+      <h3>${data.Title} (${data.Year})</h3>
+      <p>⭐ ${data.imdbRating}</p>
+      <p>${data.Genre}</p>
+    </div>
+  </div>
+`;
+        }
+      }
+    }
+
+    // Search movie
+    function getMovie() {
+      const movieName = document.getElementById("movieInput").value.trim();
+      if (!movieName) {
+        alert("Please enter a movie name!");
+        return;
+      }
+      displayMovies([movieName], "movieContainer");
+    }
+
+    // Favorite functions
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem("favorites")) || [];
+    }
+    function checkFavorite(title) {
+      const favorites = getFavorites();
+      return favorites.includes(title);
+    }
+    function toggleFavorite(title) {
+      let favorites = getFavorites();
+      if (favorites.includes(title)) {
+        favorites = favorites.filter(m => m !== title);
+      } else {
+        favorites.push(title);
+      }
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+      refreshUI();
+    }
+
+    // Refresh UI
+    function refreshUI() {
+      displayMovies(defaultMovies, "movieContainer");
+      displayMovies(getFavorites(), "favoritesContainer");
+    }
+
+    // Open Movie (Trailer search on YouTube)
+    function openMovie(title, imdbID) {
+      // open IMDb in new tab
+      window.open(`https://www.imdb.com/title/${imdbID}/`, "_blank");
+
+      // OR if you prefer trailer search on YouTube:
+      // window.open(`https://www.youtube.com/results?search_query=${title}+trailer`, "_blank");
+    }
+
+    // On load
+    window.onload = refreshUI;
+  </script>
+</body>
+</html>
