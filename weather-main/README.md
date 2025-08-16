@@ -70,7 +70,7 @@ Track and manage multiple locations.
 
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/your-username/weather-app.git
+   git clone https://github.com/SurajDhakad01/weather-app.git
    ```  
 
 2. Navigate into the project folder:  
@@ -90,7 +90,7 @@ If using a weather API like **OpenWeatherMap**:
 2. Add your API key inside the `main.js`, `search.js`, and `world.js` files.  
 
 ```javascript
-const apiKey = "YOUR_API_KEY";
+const apiKey = "HIDE DUE TO PRIVACY";
 ```
 
 ---
@@ -98,8 +98,8 @@ const apiKey = "YOUR_API_KEY";
 ## 👨‍💻 Author  
 
 Developed with ❤️ by **Suraj Dhakad**  
-📌 GitHub: [your-username](https://github.com/your-username)  
-📌 LinkedIn: [your-linkedin](https://linkedin.com/in/your-linkedin)  
+📌 GitHub: [SurajDhakad01](https://github.com/SurajDhakad01)  
+📌 LinkedIn: [suraj-dhakad]((https://www.linkedin.com/in/suraj-dhakad-5b3bb8272/)
 
 ---
 
