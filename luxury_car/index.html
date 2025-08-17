@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Velora Motors — Luxury Cars</title>
+  <meta name="description" content="Buy and sell luxury cars. Explore curated listings of premium and exotic vehicles." />
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <style>
+    :root{
+      --bg:#0b0d10; --panel:#12161b; --muted:#7c8a9a; --text:#e9eef5; --brand:#b8ff8a; --accent:#7bf1a8; --line:#1d232b; --danger:#ff6b6b; --gold:#e7c873;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+    img{max-width:100%;display:block;border-radius:12px}
+    a{color:inherit;text-decoration:none}
+    .container{width:min(1200px,92%);margin-inline:auto}
+
+    /* Header */
+    header{position:sticky;top:0;z-index:50;background:rgba(11,13,16,.75);backdrop-filter:saturate(1.2) blur(14px);border-bottom:1px solid var(--line)}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+    .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2af598,#009efd);display:grid;place-items:center;box-shadow:var(--shadow)}
+    .brand .logo svg{width:20px;height:20px}
+    .navlinks{display:flex;gap:22px;align-items:center}
+    .navlinks a{opacity:.9}
+    .navlinks a:hover{opacity:1}
+    .cta{padding:10px 16px;border-radius:999px;background:linear-gradient(135deg,var(--accent),#2af598);color:#07240f;font-weight:700;border:1px solid #9be6be;box-shadow:0 6px 18px rgba(123,241,168,.25)}
+    .menu-btn{display:none}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:48px 0}
+    .hero h1{font-size:clamp(28px,4vw,48px);line-height:1.06;margin:0 0 12px}
+    .hero p{color:var(--muted);margin:0 0 22px}
+    .badges{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 26px}
+    .badge{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:#b7c3cf;background:linear-gradient(180deg,#0f1318,#0b0d10)}
+    .searchbar{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px}
+    .searchbar select,.searchbar input{background:#0f141a;border:1px solid var(--line);border-radius:12px;padding:12px 12px;color:var(--text)}
+    .searchbar button{border:0;border-radius:12px;background:linear-gradient(135deg,#e7f9ef,var(--brand));color:#0b2b17;font-weight:800;padding:12px 18px}
+    .hero-card{position:relative}
+    .hero-card img{height:360px;object-fit:cover}
+    .stat{position:absolute;right:14px;bottom:14px;background:rgba(18,22,27,.8);border:1px solid var(--line);backdrop-filter:blur(8px);padding:12px 14px;border-radius:14px}
+
+    /* Filters */
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:24px 0}
+    .chip{background:#0f141a;border:1px solid var(--line);padding:8px 12px;border-radius:999px;color:#c9d3dd;cursor:pointer}
+    .chip.active{outline:2px solid #2af59833}
+    .sort{margin-left:auto}
+
+    /* Cards */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:linear-gradient(180deg,#12161b,#0c1116);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .card .thumb{position:relative}
+    .card .badge-top{position:absolute;left:12px;top:12px;background:rgba(23,27,33,.85);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+    .card .actions{position:absolute;right:12px;top:12px;display:flex;gap:8px}
+    .icon-btn{background:rgba(23,27,33,.85);border:1px solid var(--line);padding:8px;border-radius:10px;cursor:pointer}
+    .card h3{margin:14px 14px 2px;font-size:20px}
+    .meta{margin:0 14px 10px;color:#aab7c4;font-size:14px}
+    .price-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--line)}
+    .price{font-size:20px;font-weight:800;color:var(--gold)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #2b333d;border-radius:12px;background:#0f141a;color:#dbe6f2;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,#fdfcfb,#e8f9ef);color:#0d2b18;font-weight:800;border-color:#9fe1bd}
+
+    /* Compare bar */
+    .compare-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;background:#0f141a;border:1px solid var(--line);border-radius:16px;display:flex;gap:10px;align-items:center;padding:10px 12px;box-shadow:var(--shadow);z-index:40}
+
+    /* Sections */
+    section{padding:36px 0}
+    .section-title{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+    .section-title h2{margin:0;font-size:26px}
+    .section-title p{margin:0;color:var(--muted)}
+
+    /* Testimonials */
+    .testi{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .quote{background:linear-gradient(180deg,#12161b,#0c1116);border:1px solid var(--line);padding:16px;border-radius:16px}
+    .quote .who{display:flex;align-items:center;gap:10px;margin-top:10px;color:#cdd7e1}
+
+    /* Contact */
+    .contact{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+    form{display:grid;gap:10px}
+    input,textarea{background:#0f141a;border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text)}
+    textarea{min-height:120px}
+
+    /* Footer */
+    footer{border-top:1px solid var(--line);padding:24px 0;color:#a9b6c4}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.6);z-index:60}
+    .modal .card{width:min(920px,92%)}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr;gap:20px}
+      .searchbar{grid-template-columns:1fr 1fr;}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .testi{grid-template-columns:repeat(2,1fr)}
+      .contact{grid-template-columns:1fr}
+    }
+    @media (max-width: 640px){
+      .navlinks{display:none}
+      .menu-btn{display:block;border:1px solid var(--line);padding:8px 12px;border-radius:10px;background:#0f141a}
+      .grid{grid-template-columns:1fr}
+      .searchbar{grid-template-columns:1fr}
+      .compare-bar{left:12px;right:12px;transform:none}
+    }
+    /* tiny motion */
+    .fade-up{opacity:0;transform:translateY(12px);transition:.5s ease}
+    .fade-up.reveal{opacity:1;transform:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a href="#" class="brand">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#052012" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12h18"/><path d="M5 12l3-6h8l3 6-3 6H8z"/>
+          </svg>
+        </span>
+        <span>Velora Motors</span>
+      </a>
+      <nav class="navlinks">
+        <a href="#inventory">Inventory</a>
+        <a href="#how">Why Us</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#contact">Contact</a>
+        <a class="cta" href="#inventory">Book Test Drive</a>
+      </nav>
+      <button class="menu-btn" onclick="toggleMenu()">Menu</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div>
+        <div class="badges">
+          <span class="badge">Certified Pre‑Owned</span>
+          <span class="badge">0% EMI Options*</span>
+          <span class="badge">Pan‑India Delivery</span>
+        </div>
+        <h1>Elevate your drive with curated <em style="font-style:normal;color:var(--brand)">luxury & exotic</em> cars</h1>
+        <p>Shop hand‑picked supercars and premium SUVs with transparent history, 200‑point inspection and concierge after‑sales.</p>
+        <div class="searchbar" id="searchbar">
+          <select id="brand">
+            <option value="">All Brands</option>
+            <option>Mercedes‑Benz</option>
+            <option>BMW</option>
+            <option>Audi</option>
+            <option>Lamborghini</option>
+            <option>Ferrari</option>
+            <option>Land Rover</option>
+            <option>Porsche</option>
+          </select>
+          <select id="body">
+            <option value="">Any Body Type</option>
+            <option>Sedan</option>
+            <option>SUV</option>
+            <option>Coupe</option>
+            <option>Convertible</option>
+          </select>
+          <input id="price" type="range" min="50" max="800" step="10" value="300" oninput="priceOut.textContent='₹'+(this.value)+'L'">
+          <button onclick="applyFilters()">Search</button>
+        </div>
+        <small id="priceOut" style="display:block;color:#c5d2df;margin-top:6px">₹300L</small>
+      </div>
+      <div class="hero-card">
+        <img alt="Luxury car hero" src="https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?q=80&w=1600&auto=format&fit=crop"/>
+        <div class="stat">Trusted by 4,000+ premium buyers</div>
+      </div>
+    </section>
+
+    <!-- FILTER CHIPS -->
+    <section class="controls" aria-label="Quick filters">
+      <button class="chip active" data-chip="all" onclick="quickFilter('all')">All</button>
+      <button class="chip" data-chip="new" onclick="quickFilter('new')">New Arrivals</button>
+      <button class="chip" data-chip="featured" onclick="quickFilter('featured')">Featured</button>
+      <button class="chip" data-chip="discount" onclick="quickFilter('discount')">On Offer</button>
+      <select class="chip sort" id="sort" onchange="sortCards()">
+        <option value="relevance">Sort: Relevance</option>
+        <option value="low">Price: Low to High</option>
+        <option value="high">Price: High to Low</option>
+        <option value="year">Newest Year</option>
+        <option value="kms">Lowest KMs</option>
+      </select>
+    </section>
+
+    <!-- INVENTORY GRID -->
+    <section id="inventory">
+      <div class="section-title">
+        <h2>Curated Inventory</h2>
+        <p>Every car comes with service history, verified ownership and 1‑year warranty.</p>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- HOW IT WORKS / VALUE PROP -->
+    <section id="how">
+      <div class="section-title"><h2>Why buy from Velora</h2><p>Concierge experience from discovery to delivery.</p></div>
+      <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="quote fade-up">
+          <h3>200‑Point Inspection</h3>
+          <p>Comprehensive checks covering engine, drivetrain, electronics, paint, tyres and interior — documented and shareable.</p>
+        </div>
+        <div class="quote fade-up">
+          <h3>Transparent Pricing</h3>
+          <p>Upfront pricing with fair valuation, no hidden fees, and competitive buy‑back offers.</p>
+        </div>
+        <div class="quote fade-up">
+          <h3>Doorstep Delivery</h3>
+          <p>Enclosed transport across India with insurance. Paperwork and RTO process handled end‑to‑end.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews">
+      <div class="section-title"><h2>Owner Stories</h2><p>Real experiences from discerning buyers.</p></div>
+      <div class="testi">
+        <div class="quote">
+          <p>“Immaculate condition, exactly as described. The buying experience felt truly premium.”</p>
+          <div class="who"><img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&q=80&auto=format&fit=crop" alt="" width="36" height="36" style="border-radius:50%"> Arjun M • Mumbai</div>
+        </div>
+        <div class="quote">
+          <p>“They sourced a rare spec within 10 days and arranged finance at great rates.”</p>
+          <div class="who"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80&auto=format&fit=crop" alt="" width="36" height="36" style="border-radius:50%"> Sana K • Bengaluru</div>
+        </div>
+        <div class="quote">
+          <p>“Inspection report was detailed; I felt confident buying sight‑unseen.”</p>
+          <div class="who"><img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=80&q=80&auto=format&fit=crop" alt="" width="36" height="36" style="border-radius:50%"> Raghav • Delhi</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <div class="section-title"><h2>Book a Test Drive</h2><p>Tell us what you’re looking for — we’ll call back within 2 hours.</p></div>
+      <div class="contact">
+        <form onsubmit="submitLead(event)">
+          <input required id="name" placeholder="Your name"/>
+          <input required id="phone" placeholder="Phone" pattern="[0-9]{10}" title="Enter 10‑digit mobile"/>
+          <input id="city" placeholder="City"/>
+          <input id="model" placeholder="Preferred model (e.g., GLE 53)"/>
+          <textarea id="msg" placeholder="Anything specific?" ></textarea>
+          <button class="btn primary" type="submit">Request Callback</button>
+          <small id="leadStatus" style="color:var(--muted)"></small>
+        </form>
+        <div class="quote">
+          <h3>Visit our Lounge</h3>
+          <p>By appointment only • BKC, Mumbai</p>
+          <img src="https://images.unsplash.com/photo-1483721310020-03333e577078?q=80&w=1400&auto=format&fit=crop" alt="Showroom"/>
+          <ul style="color:#c7d3df;line-height:1.9">
+            <li>Mon–Sat • 10:00–20:00</li>
+            <li>Premium finance & insurance partners</li>
+            <li>Trade‑in and consignment welcome</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap">
+      <div>© <span id="year"></span> Velora Motors • All rights reserved</div>
+      <div style="display:flex;gap:12px">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Quick View Modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="card">
+      <div class="thumb"><img id="mImg" alt="Selected car" src=""/></div>
+      <div style="padding:14px">
+        <h3 id="mTitle">—</h3>
+        <p class="meta" id="mMeta">—</p>
+        <div class="price-row">
+          <div class="price" id="mPrice">—</div>
+          <div style="display:flex;gap:10px">
+            <button class="btn" onclick="toggleModal(false)">Close</button>
+            <button class="btn primary" onclick="scrollToContact()">Enquire</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="compare-bar" id="compareBar" style="display:none">
+    <span id="compareCount">0</span> selected
+    <button class="btn" onclick="clearCompare()">Clear</button>
+    <button class="btn primary" onclick="compareNow()">Compare</button>
+  </div>
+
+  <script>
+    // --- MOCK DATA (replace with your backend) ---
+    const cars = [
+      {id:1, brand:'Mercedes‑Benz', model:'S‑Class S450', year:2022, kms:12000, body:'Sedan', price:240, tags:['featured'], img:'https://images.unsplash.com/photo-1606665144663-83cb2ee0a214?q=80&w=1600&auto=format&fit=crop'},
+      {id:2, brand:'BMW', model:'X7 M50d', year:2021, kms:18000, body:'SUV', price:185, tags:['new'], img:'https://images.unsplash.com/photo-1619767886558-efdc259cde1b?q=80&w=1600&auto=format&fit=crop'},
+      {id:3, brand:'Porsche', model:'911 Carrera', year:2020, kms:9000, body:'Coupe', price:320, tags:['featured'], img:'https://images.unsplash.com/photo-1556189250-72ba954cfc2b?q=80&w=1600&auto=format&fit=crop'},
+      {id:4, brand:'Audi', model:'RS7 Sportback', year:2022, kms:7000, body:'Coupe', price:285, tags:['discount'], img:'https://images.unsplash.com/photo-1606665144130-9cf8b0ca3297?q=80&w=1600&auto=format&fit=crop'},
+      {id:5, brand:'Land Rover', model:'Range Rover Vogue', year:2019, kms:24000, body:'SUV', price:175, tags:[''], img:'https://images.unsplash.com/photo-1549921296-3b4a6f2c035e?q=80&w=1600&auto=format&fit=crop'},
+      {id:6, brand:'Lamborghini', model:'Huracán EVO', year:2021, kms:5000, body:'Convertible', price:420, tags:['featured','new'], img:'https://images.unsplash.com/photo-1542362567-b07e54358753?q=80&w=1600&auto=format&fit=crop'},
+      {id:7, brand:'Ferrari', model:'488 GTB', year:2018, kms:11000, body:'Coupe', price:410, tags:['discount'], img:'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop'},
+      {id:8, brand:'Mercedes‑Benz', model:'GLE 53 AMG', year:2023, kms:4000, body:'SUV', price:230, tags:['new'], img:'https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=1600&auto=format&fit=crop'},
+      {id:9, brand:'Porsche', model:'Panamera Turbo', year:2019, kms:22000, body:'Sedan', price:260, tags:[''], img:'https://images.unsplash.com/photo-1592853625600-0f69bc05a499?q=80&w=1600&auto=format&fit=crop'}
+    ];
+
+    const grid = document.getElementById('grid');
+    const compareSet = new Set();
+
+    // Render cards
+    function render(list){
+      grid.innerHTML = '';
+      list.forEach(c => grid.appendChild(cardEl(c)));
+      observeReveal();
+    }
+
+    function cardEl(c){
+      const card = document.createElement('article');
+      card.className = 'card fade-up';
+      card.setAttribute('data-price', c.price);
+      card.setAttribute('data-year', c.year);
+      card.setAttribute('data-kms', c.kms);
+
+      card.innerHTML = `
+        <div class="thumb">
+          <img src="${c.img}" alt="${c.brand} ${c.model}">
+          <span class="badge-top">${c.year} • ${c.kms.toLocaleString()} km</span>
+          <div class="actions">
+            <button class="icon-btn" title="Quick view" aria-label="Quick view" data-qv>👁️</button>
+            <button class="icon-btn" title="Compare" aria-label="Add to compare" data-compare>⚖️</button>
+          </div>
+        </div>
+        <h3>${c.brand} ${c.model}</h3>
+        <p class="meta">${c.body} • ${c.tags.join(' ')} </p>
+        <div class="price-row">
+          <div class="price">₹${c.price}L</div>
+          <div style="display:flex;gap:10px">
+            <button class="btn" data-wish>♡ Wishlist</button>
+            <button class="btn primary" data-enquire>Enquire</button>
+          </div>
+        </div>`;
+
+      // Attach events
+      card.querySelector('[data-qv]').onclick = () => openQuickView(c);
+      card.querySelector('[data-enquire]').onclick = () => {openQuickView(c);};
+      card.querySelector('[data-compare]').onclick = (e) => toggleCompare(c.id, e.currentTarget);
+      card.querySelector('[data-wish]').onclick = (e) => toggleWish(e.currentTarget);
+
+      return card;
+    }
+
+    // Filters & sorting
+    function applyFilters(){
+      const b = document.getElementById('brand').value;
+      const body = document.getElementById('body').value;
+      const max = +document.getElementById('price').value;
+      const list = cars.filter(c => (!b || c.brand===b) && (!body || c.body===body) && c.price <= max);
+      render(list);
+    }
+
+    function quickFilter(tag){
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      document.querySelector(`[data-chip="${tag}"]`).classList.add('active');
+      if(tag==='all') return render(cars);
+      render(cars.filter(c=>c.tags.includes(tag)));
+    }
+
+    function sortCards(){
+      const value = document.getElementById('sort').value;
+      const items = Array.from(grid.children);
+      const by = {
+        low:(a,b)=>(+a.dataset.price)-(+b.dataset.price),
+        high:(a,b)=>(+b.dataset.price)-(+a.dataset.price),
+        year:(a,b)=>(+b.dataset.year)-(+a.dataset.year),
+        kms:(a,b)=>(+a.dataset.kms)-(+b.dataset.kms),
+        relevance:()=>0
+      }[value];
+      items.sort(by).forEach(el=>grid.appendChild(el));
+    }
+
+    // Compare
+    function toggleCompare(id, btn){
+      if(compareSet.has(id)){ compareSet.delete(id); btn.textContent = '⚖️'; }
+      else { compareSet.add(id); btn.textContent = '✓'; }
+      const bar = document.getElementById('compareBar');
+      document.getElementById('compareCount').textContent = compareSet.size;
+      bar.style.display = compareSet.size ? 'flex' : 'none';
+    }
+    function clearCompare(){ compareSet.clear(); document.querySelectorAll('[data-compare]').forEach(b=>b.textContent='⚖️'); document.getElementById('compareBar').style.display='none'; }
+    function compareNow(){
+      const selected = cars.filter(c=>compareSet.has(c.id));
+      if(!selected.length) return alert('Select cars to compare.');
+      const lines = selected.map(c=>`${c.brand} ${c.model} | ₹${c.price}L | ${c.year} | ${c.kms} km | ${c.body}`).join('\n');
+      alert('Compare:\n' + lines);
+    }
+
+    // Wishlist
+    function toggleWish(btn){
+      const on = btn.textContent.includes('♡');
+      btn.textContent = on ? '♥ In wishlist' : '♡ Wishlist';
+    }
+
+    // Quick view modal
+    function openQuickView(c){
+      document.getElementById('mImg').src = c.img;
+      document.getElementById('mTitle').textContent = `${c.brand} ${c.model}`;
+      document.getElementById('mMeta').textContent = `${c.year} • ${c.kms.toLocaleString()} km • ${c.body}`;
+      document.getElementById('mPrice').textContent = `₹${c.price}L`;
+      toggleModal(true);
+    }
+    function toggleModal(show){
+      const m = document.getElementById('modal');
+      m.style.display = show ? 'grid' : 'none';
+      m.setAttribute('aria-hidden', !show);
+    }
+
+    function scrollToContact(){
+      toggleModal(false);
+      document.getElementById('contact').scrollIntoView({behavior:'smooth'});
+    }
+
+    // Lead form (demo)
+    function submitLead(e){
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('name').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        model: document.getElementById('model').value.trim(),
+        msg: document.getElementById('msg').value.trim(),
+        ts: new Date().toISOString()
+      };
+      localStorage.setItem('velora_lead_'+Date.now(), JSON.stringify(payload));
+      document.getElementById('leadStatus').textContent = 'Thanks! Our advisor will reach out shortly.';
+      e.target.reset();
+    }
+
+    // Mobile menu (minimal demo)
+    function toggleMenu(){
+      const nav = document.querySelector('.navlinks');
+      const show = getComputedStyle(nav).display === 'none';
+      nav.style.display = show ? 'flex' : 'none';
+    }
+
+    // Intersection reveal
+    function observeReveal(){
+      const io = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('reveal'); io.unobserve(e.target); } });
+      },{threshold:.2});
+      document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+    }
+
+    // Init
+    (function init(){
+      render(cars);
+      document.getElementById('year').textContent = new Date().getFullYear();
+      observeReveal();
+    })();
+  </script>
+</body>
+</html>
